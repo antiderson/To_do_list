@@ -1,5 +1,5 @@
 import { Link, useRouteError } from "react-router-dom";
-import styles from './index.module.css';
+import './style.css';
 
 type ErrorResponse = {
     data: any;
@@ -13,7 +13,7 @@ export default function NotFound() {
     console.error(error);
 
     return (
-        <section className={styles.error_page}>
+        <section className='error_page'>
             <h1>Oops!</h1>
             <p>Sorry, an unexpected error has occurred.</p>
             <p>
@@ -21,7 +21,7 @@ export default function NotFound() {
             </p>
             <Link to="/">
                 <button
-                    className={styles.button}
+                    className='button'
                 >
                     Voltar
                 </button>
