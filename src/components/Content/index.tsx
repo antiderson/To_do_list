@@ -1,116 +1,139 @@
-import styles from './index.module.css';
+import './style.css';
 import Plus from '../../assets/plus.svg';
 import { NoContent } from '../NoContent';
-import { ChangeEvent, useEffect, useState } from 'react';
-import { TodoList } from '../TodoList';
-import { Task } from '../../models/Task';
+import { ChangeEvent, FormEvent, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { api } from '../../configs/api';
-import useToDoContext from '../../hooks/useToDoContext';
 import { useToast } from '../../hooks/useToast';
+import { Task } from '../Task';
 
-export const Content = () => {
-    const [description, setDescription] = useState<string>("");
+interface taskesProps {
+    id: string,
+    content: string,
+    state: boolean
+}
 
-    const { taskListState, setTaskListState } = useToDoContext()
+export function Content() {
+    const [tasks, setTask] = useState(Array<taskesProps>)
+    const [newTaskText, setNewTaskText] = useState('')
     const { showToast } = useToast();
 
-    const tasksDone = taskListState.filter((task) => {
-        return task.isDone !== false;
-    })
 
-    const disabledButton = !description.length;
+function tal(){
+    
+}
 
-    const addTaskOnList = () => {
+    function createTask(event: FormEvent) {
+        // if (newTaskText.length == 0) {
+        //     showToast({
+        //         message: "Erro ao adicionar tarefa",
+        //         type: 'danger'
+        //     })
 
-        const newTask = {
-            id: uuidv4(),
-            description,
-            isDone: false,
-        }
-        api.post("tasks", newTask)
-            .then((response) => setTaskListState((currentValue) => [...currentValue, response.data]))
-            .finally(() => {
-                setDescription('')
-                showToast({
-                    message: "Tarefa adicionada com sucesso",
-                    type: 'success'
-                })
-            });
-    }
 
-    const removeTaskOnList = (id: string) => {
-        api.delete(`tasks/${id}`)
-            .then(() =>
-                setTaskListState((currentValue) => currentValue.filter(task => task.id !== id)));
-    }
+        event.preventDefault()
 
-    const changeStatusCheckbox = (id: string) => {
-        const task = taskListState.find(task => task.id === id);
-
-        if (task) {
-            api.patch(`tasks/${id}`, {
-                isDone: !task.isDone,
-            });
-        }
-
-        const xebas = taskListState.map((task) => {
-            if (task.id === id) {
-                return {
-                    ...task,
-                    isDone: !task.isDone
-                }
+        setTask([
+            ...tasks,
+            {
+                id: uuidv4(),
+                content: newTaskText,
+                state: false
             }
-            return task;
-        });
+        ])
 
-        setTaskListState(xebas);
+        setNewTaskText('')
+        showToast({
+            message: "Tarefa adicionada com sucesso",
+            type: 'success'
+        })
+        console.log("teste")
+
+    }
+    function handleTextTask(event: ChangeEvent<HTMLInputElement>) {
+        event.target.setCustomValidity('')
+        setNewTaskText(event.target.value)
     }
 
-    useEffect(() => {
-        api.get("tasks").then((response) => setTaskListState(response.data as Task[]));
-    }, []);
+    function deleteTask(taskToDelete: string) {
+        const tasksWhithoutDeleteOne = tasks.filter(task => {
+            return task.id != taskToDelete
+        })
 
+        setTask(tasksWhithoutDeleteOne)
+    }
+
+    function changeTaskStatus(state: string) {
+        const todoListWithChangedTask = tasks.map(task => {
+            if (task.id === state) {
+                task.state = !task.state
+                return task
+            }
+            return task
+        })
+
+        setTask(todoListWithChangedTask)
+    }
+
+    const numberOfCompleted = tasks.filter(
+        task => task.state === true).length
+
+    const countTasks = tasks.length
+    const isDisabledTask = newTaskText.length == 0
+
+    // console.log(newTaskText)
     return (
-        <section className={styles.section_container}>
-            <main>
+        <div>
+            <div className='wapper'>
+                <div>
+                    <form className='container'>
+                        <input
+                            onChange={handleTextTask}
+                            placeholder="Adicionar uma nova tarefa"
+                            type="text"
+                            value={newTaskText}
+                            required
+                        />
+                        <button
+                            type={'submit'}
+                            disabled={isDisabledTask}
+                            onClick={createTask}>
+                            Criar
+                            <img
+                                src={Plus}
+                                alt="Ícone de mais" />
+                        </button>
+                    </form>
+                </div>
 
-                <article className={styles.input_container}>
-                    <input
-                        className={styles.input}
-                        type="text"
-                        value={description}
-                        placeholder="Adicione uma nova tarefa"
-                        onChange={(event: ChangeEvent<HTMLInputElement>) => setDescription(event.target.value)} />
-                    <button
-                        className={styles.button}
-                        disabled={disabledButton}
-                        onClick={() => addTaskOnList()} >
-                        Criar
-                        <img
-                            src={Plus}
-                            alt="Ícone de mais" />
-                    </button>
-                </article>
-
-                <article className={styles.content_header}>
-                    <article className={styles.tasks_container}>
-                        <p className={styles.tasks_created}>Tarefas Criadas</p>
-                        <span className={styles.span_value}>{taskListState.length}</span>
-                    </article>
-                    <article className={styles.tasks_container}>
-                        <p className={styles.tasks_done}>Concluídas</p>
-                        <span className={styles.span_value}> {tasksDone.length} de {taskListState.length} </span>
-                    </article>
-                </article>
-
-                {taskListState.length === 0 ? <NoContent /> : <TodoList
-                    onDelete={removeTaskOnList}
-                    onChangeCheckbox={changeStatusCheckbox}
-                />}
-
-
-            </main>
-        </section>
+                <main className='content'>
+                    <div className='counter'>
+                        <strong className='blue'>
+                            Tarefas criadas<span>{countTasks}</span>
+                        </strong>
+                        <strong className='purple'>
+                            Concluidas
+                            <span>
+                                {numberOfCompleted} {tasks.length > 0 && 'de'}{' '}
+                                {tasks.length > 0 && countTasks}
+                            </span>
+                        </strong>
+                    </div>
+                </main>
+                <div>
+                    {tasks.map(task => {
+                        return (
+                            <Task
+                                key={task.id}
+                                content={task.content}
+                                id={task.id}
+                                isChecked={task.state}
+                                onDeleteTask={deleteTask}
+                                isCompleted={changeTaskStatus} />
+                        )
+                    })}
+                    {tasks.length === 0 && <NoContent />}
+                </div>
+            </div>
+        </div>
     )
 }
