@@ -17,11 +17,6 @@ export function Content() {
     const [newTaskText, setNewTaskText] = useState('')
     const { showToast } = useToast();
 
-
-function tal(){
-    
-}
-
     function createTask(event: FormEvent) {
         // if (newTaskText.length == 0) {
         //     showToast({
