@@ -1,11 +1,6 @@
 import { createContext, useState } from "react";
 
-
-export type Task = {
-    id: string;
-    description: string;
-    isDone: boolean;
-}
+import { Task } from "../../Models/Task";
 
 type ToDoContextProviderProps = {
     children: React.ReactNode
