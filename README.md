@@ -8,4 +8,4 @@ ToDo List é um projeto da faculdade que consiste em uma lista que adicionar tas
 -  React c/ TypeScript
 
 ### Link do projeto Funcional
-https://dolisto.netlify.app/
+<link target="_blank">https://dolisto.netlify.app/</link>
